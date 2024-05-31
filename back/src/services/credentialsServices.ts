@@ -21,4 +21,6 @@ export const checkCredentialsService = (username: string, password: string) => {
     if (newCredentials?.password === password) {
         return newCredentials.id
     }
+
+    return undefined
 }
