@@ -1,37 +1,49 @@
+import { userRepository } from "../data-source"
+import { User } from "../entities/User"
 import { IUser } from "../entities/interfaces"
 import { checkCredentialsService, createCredentialsService } from "./credentialsServices"
 
 const users: IUser[] = []
 
-export const getUsersService = () => {
-    return users
+export const getUsersService = async () => {
+    return await userRepository.find()
 }
 
-export const getUserByIdService = (id: number) => {
-    const user = users.find(user => user.id === id)
-
+export const getUserByIdService = async (id: number) => {
+    const user: User | null = await userRepository.findOneBy({id})
     return user
 }
 
-export const registerUserService = (id: number, name: string, email: string, birthdate: string, nDni: number, username: string, password: string) => {
-    const credentialsId = createCredentialsService(username, password)
-    users.push({
-        id,
+export const registerUserService = async (name: string, email: string, birthdate: string, nDni: number, username: string, password: string) => {
+    const credentials = await createCredentialsService(username, password)
+    const user = await userRepository.create({
         name,
         email,
         birthdate,
-        nDni,
-        credentialsId
+        nDni
     })
+
+    if (user) {
+        user.credentials = credentials
+        const savedUser = await userRepository.save(user)
+        if (savedUser) {
+            return true
+        }
+    }
+    return false
 }
 
-export const loginUserService = (username: string, password: string) => {
-    const credentialsId: number | undefined = checkCredentialsService(username, password)
+export const loginUserService = async (username: string, password: string) => {
+    const credentialsId: number | null = await checkCredentialsService(username, password)
 
     if (credentialsId) {
-        const user: IUser | undefined = users.find(user => user.credentialsId === credentialsId)
-        return user
+        const user: User | null = await userRepository.findOne({
+            where: { credentials: { id: credentialsId}}
+        })
+        if (user) {
+            return user
+        }
     }
 
-    return undefined
+    return false
 }

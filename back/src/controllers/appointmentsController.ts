@@ -19,7 +19,7 @@ export const getAppointmentByIdController = (req: Request, res: Response) => {
 
 export const scheduleAppointmentController = (req: Request, res: Response) => {
     const { id, date, time, status, userId } = req.body
-    scheduleAppointmentService(id, date, time, userId, status)
+    scheduleAppointmentService(date, time, userId)
     res.status(201).send("Turno creado satisfactoriamente.")
 }
 

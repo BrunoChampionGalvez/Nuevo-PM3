@@ -13,7 +13,7 @@ export class Appointment {
     @Column()
     time!: string;
 
-    @Column()
+    @Column({default: "Activo"})
     status!: Status
 
     @ManyToOne(() => User, user => user.appointments)
