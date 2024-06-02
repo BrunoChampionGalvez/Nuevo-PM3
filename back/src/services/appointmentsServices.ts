@@ -11,8 +11,11 @@ export const getAppointmentsService = async () => {
 }
 
 export const getAppointmentByIdService = async (id:number) => {
-    const appointment: Appointment | null = await appointmentRepository.findOneBy({
-        id
+    const appointment: Appointment | null = await appointmentRepository.findOne({
+        where: {
+            id: id
+        },
+        relations: ['user']
     })
 
     return appointment

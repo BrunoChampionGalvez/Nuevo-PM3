@@ -1,30 +1,76 @@
 import { Request, Response } from "express";
 import { IAppointment } from "../entities/interfaces";
 import { cancelAppointmentService, getAppointmentByIdService, getAppointmentsService, scheduleAppointmentService } from "../services/appointmentsServices";
+import { Appointment } from "../entities/Appointment";
 
-export const getAppointmentsController = (req: Request, res: Response) => {
-    const appointments: IAppointment[] = getAppointmentsService()
-    res.status(200).json({
-        appointments: appointments
-    })
+export const getAppointmentsController = async (req: Request, res: Response) => {
+    try {
+        const appointments: Appointment[] = await getAppointmentsService()
+        if (appointments.length > 0) {
+            res.status(200).json({
+                appointments
+            })
+        } else {
+            throw Error("No se encontraron turnos.")
+        }
+    } catch (error: any) {
+        res.status(404).json({
+            message: error.message
+        })
+    }
 }
 
-export const getAppointmentByIdController = (req: Request, res: Response) => {
-    const { id } = req.params
-    const appointment: IAppointment | undefined = getAppointmentByIdService(Number(id))
-    res.status(200).json({
-        appointment: appointment
-    })
+export const getAppointmentByIdController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const appointment: Appointment | null = await getAppointmentByIdService(Number(id))
+        if (appointment) {
+            const newAppointment: Partial<Appointment> = {
+                ...appointment,
+                userId: appointment.user.id
+            }
+            delete newAppointment.user
+            res.status(200).json({
+                newAppointment
+            })
+        } else {
+            throw Error("Turno no encontrado.")
+        }
+    } catch (error: any) {
+        res.status(404).json({
+            message: error.message
+        })
+    }
 }
 
-export const scheduleAppointmentController = (req: Request, res: Response) => {
-    const { id, date, time, status, userId } = req.body
-    scheduleAppointmentService(date, time, userId)
-    res.status(201).send("Turno creado satisfactoriamente.")
+export const scheduleAppointmentController = async (req: Request, res: Response) => {
+    try {
+        const { id, date, time, status, userId } = req.body
+        const registered: boolean = await scheduleAppointmentService(date, time, userId)
+        if (registered) {
+            res.status(201).send("Turno creado")
+        } else {
+            throw Error("Datos incorrectos")
+        }
+    } catch (error: any) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
 }
 
-export const cancelAppointmentController = (req: Request, res: Response) => {
-    const { id } = req.params
-    cancelAppointmentService(Number(id))
-    res.status(200).send("Turno cancelado satisfactoriamente.")
+export const cancelAppointmentController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const cancelled: boolean = await cancelAppointmentService(Number(id))
+        if (cancelled) {
+            res.status(200).send("Turno cancelado")
+        } else {
+            throw Error("Turno no encontrado")
+        }
+    } catch (error: any) {
+        res.status(404).json({
+            message: error.message
+        })
+    }
 }

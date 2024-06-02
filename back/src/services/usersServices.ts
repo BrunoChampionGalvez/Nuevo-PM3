@@ -10,7 +10,10 @@ export const getUsersService = async () => {
 }
 
 export const getUserByIdService = async (id: number) => {
-    const user: User | null = await userRepository.findOneBy({id})
+    const user: User | null = await userRepository.findOne({
+        where: { id: id },
+        relations: ['appointments']
+    })
     return user
 }
 

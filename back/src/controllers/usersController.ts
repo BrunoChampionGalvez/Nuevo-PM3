@@ -29,13 +29,10 @@ export const getUserByIdController = async (req: Request, res: Response) => {
             throw Error ("Usuario no encontrado.")
         }
     } catch (error: any) {
-        if (error.message === "Usuario no encontrado.") {
-            res.status(404).send("Usuario no encontrado.")
-        } else {
-            res.status(500).json({
-                message: error.message
-            })
-        }
+        res.status(404).json({
+            message: error.message
+        })
+
     }
 }
 
@@ -43,9 +40,13 @@ export const registerUserController = async (req: Request, res: Response) => {
     try {
         const { name, email, birthdate, nDni, username, password } = req.body
         const registered: boolean = await registerUserService(name, email, birthdate, nDni, username, password)
-        res.status(201).send("Usuario registrado satisfactoriamente.")
+        if (registered) {
+            res.status(201).send("Usuario registrado.")
+        } else {
+            throw Error ("Faltan datos.")
+        }
     } catch (error: any) {
-        res.status(500).json({
+        res.status(400).json({
             message: error.message
         })
     }
@@ -61,17 +62,11 @@ export const loginUserController = async (req: Request, res: Response) => {
                 user: user
             })
         } else {
-            throw Error("Credenciales incorrectas.")
+            throw Error("Datos incorrectos.")
         }
     } catch (error: any) {
-        if (error.message === "Credenciales incorrectas.") {
-            res.status(400).json({
-                message: error.message
-            })
-        } else {
-            res.status(500).json({
-                message: error.message
-            })
-        }
+        res.status(400).json({
+            message: error.message
+        })
     }
 }
