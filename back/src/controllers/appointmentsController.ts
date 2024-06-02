@@ -40,7 +40,7 @@ export const getAppointmentByIdController = async (req: Request, res: Response) 
 
 export const scheduleAppointmentController = async (req: Request, res: Response) => {
     try {
-        const { id, date, time, status, userId } = req.body
+        const { date, time, userId } = req.body
         const registered: boolean = await scheduleAppointmentService(date, time, userId)
         if (registered) {
             res.status(201).send("Turno creado")
