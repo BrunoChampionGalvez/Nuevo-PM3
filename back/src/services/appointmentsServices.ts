@@ -15,7 +15,6 @@ export const getAppointmentByIdService = async (id:number) => {
         where: {
             id: id
         },
-        relations: ['user']
     })
 
     return appointment

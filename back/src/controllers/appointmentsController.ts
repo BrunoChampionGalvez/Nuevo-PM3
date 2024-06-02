@@ -25,13 +25,8 @@ export const getAppointmentByIdController = async (req: Request, res: Response) 
         const { id } = req.params
         const appointment: Appointment | null = await getAppointmentByIdService(Number(id))
         if (appointment) {
-            const newAppointment: Partial<Appointment> = {
-                ...appointment,
-                userId: appointment.user.id
-            }
-            delete newAppointment.user
             res.status(200).json({
-                newAppointment
+                appointment
             })
         } else {
             throw Error("Turno no encontrado.")
